@@ -13,20 +13,20 @@
     zone            = "fr-par-1"
     region          = "fr-par"
   }
-   cloud {
+  cloud {
        organization = "REPLACE_ME"
 
        workspaces {
          name = "learn-terraform-github-actions"
-       }
-     }
-   }
-   resource "scaleway_k8s_cluster" "k8s-mafao-dev" {
+      }
+  }
+   
+  resource "scaleway_k8s_cluster" "k8s-mafao-dev" {
    name    = "k8s-mafao-dev"
    version = "1.24.3"
    cni     = "cilium"
    delete_additional_resources = false
- }
+  }
 
 resource "scaleway_k8s_pool" "mafao_dev_keycloak" {
   cluster_id = scaleway_k8s_cluster.k8s-mafao-dev.id
