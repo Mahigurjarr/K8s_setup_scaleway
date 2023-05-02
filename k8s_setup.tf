@@ -14,10 +14,10 @@
     region          = "fr-par"
   }
   cloud {
-       organization = "REPLACE_ME"
+       organization = "Alyssum"
 
        workspaces {
-         name = "learn-terraform-github-actions"
+         name = "terraform_practice"
       }
   }
    
