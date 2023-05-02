@@ -10,13 +10,6 @@
     zone            = "fr-par-1"
     region          = "fr-par"
   }
-  cloud {
-       organization = "Alyssum"
-
-       workspaces {
-         name = "terraform_practice"
-      }
-  }
    
   resource "scaleway_k8s_cluster" "k8s-mafao-dev" {
    name    = "k8s-mafao-dev"
