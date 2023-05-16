@@ -1,49 +1,65 @@
 name: "Terraform"
 
 on:
-  push:
-    branches:
-      - main
+#   push:
+#     branches:
+#       - main
   pull_request:
-
+  workflow_dispatch: #this attribute will enable the manual run to the pipeline
+env:
+  SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+  SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+  ROOT_PATH: '${{github.workspace}}'
 jobs:
-  terraform:
-    name: "Terraform"
+  terraform_plan:
+    name: 'terraform plan'
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v2
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          # terraform_version: 1.4.2
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+    - name: Setup terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+    - name: terraform init
+      run: terraform init
+      working-directory: ${{ env.ROOT_PATH }}
 
-      # - name: Terraform Format
-      #   id: fmt
-      #   run: terraform fmt -check
+    - name: terraform Plan
+      run: terraform plan 
+      working-directory: ${{ env.ROOT_PATH }}
 
-      - name: Terraform Init
-        id: init
-        run: terraform init
-      
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate -no-color
+  terraform_apply:
+    name: 'terraform apply'
+    needs: [terraform_plan]
+    runs-on: ubuntu-latest
+    environment: production
+    
+    defaults:
+      run:
+        shell: bash
 
-      - name: Terraform Plan
-        id: plan
-        if: github.event_name == 'pull_request'
-        run: terraform plan -no-color -input=false
-        continue-on-error: true
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
 
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
+    - name: Setup terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+ 
+    - name: terraform Init
+      run: terraform init
+      working-directory: ${{ env.ROOT_PATH }}
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+#     - name: terraform Init
+#       run: echo 'var -> ${{inputs.tf_destroy}}'
+#       working-directory: ${{ env.ROOT_PATH }}
+
+      #github.ref == 'refs/heads/main' && github.event_name == 'push'
+    - name: terraform Apply
+      run: terraform apply -auto-approve
+#       if: ${{inputs.tf_destroy}} == false
+      working-directory: ${{ env.ROOT_PATH }}
