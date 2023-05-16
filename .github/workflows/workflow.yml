@@ -10,6 +10,7 @@ env:
   SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
   SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
   ROOT_PATH: '${{github.workspace}}'
+  
 jobs:
   terraform_plan:
     name: 'terraform plan'
